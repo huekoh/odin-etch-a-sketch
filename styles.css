@@ -1,5 +1,24 @@
 h1 {
     text-align: center;
+    color: steelblue;
+    font-size: 6em;
+    margin: 24px auto;
+}
+
+button {
+    width: 160px;
+    height: 42px;
+    border: none;
+    border-radius: 10px;
+    background-color: steelblue;
+    color: white;
+}
+
+.buttons {
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
 }
 
 .grid-container {
