@@ -19,6 +19,19 @@ function setPenMode(element) {
     element.style.backgroundColor = "steelblue";
 }
 
+function generateRandomInteger(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Set mode to rainbow
+function setRainbowMode(element) {
+    const r = generateRandomInteger(0, 255);
+    const g = generateRandomInteger(0, 255);
+    const b = generateRandomInteger(0, 255);
+    
+    element.style.backgroundColor = `rgb(${[r,g,b].join(',')})`;
+}
+
 // Create and insert the grids into the container and default to pen mode
 function createGrid() {
     for (let i = 0; i < 16 * 16; i++) {
@@ -27,8 +40,12 @@ function createGrid() {
         grid.setAttribute("style", `width: ${GRID_SIZE}px; height: ${GRID_SIZE}px; 
             border-style: solid; border-width: 1px; border-color: steelblue;`);
 
-        grid.addEventListener("mouseenter", () => setPenMode(grid));
-    
+        // Store current handler in the element
+        grid._handler = function (e) {
+            setPenMode(grid);
+        };
+
+        grid.addEventListener("mouseenter", grid._handler);
         container.appendChild(grid);
     }
 }
@@ -44,15 +61,18 @@ function changeMode() {
     const grids = container.getElementsByTagName("div");
     for (let i = 0; i < grids.length; i++) {
         const grid = grids[i];
+        grid.removeEventListener("mouseenter", grid._handler);
 
         // Add new eventListener
-        if (currentMode == "pen") {
-            grid.removeEventListener("mouseenter", () => setEraseMode(grid));
-            grid.addEventListener("mouseenter", () => setPenMode(grid));
+        if (currentMode === "pen") {
+            grid._handler = () => setPenMode(grid);
+        } else if (currentMode === "erase") {
+            grid._handler = () => setEraseMode(grid);
         } else {
-            grid.removeEventListener("mouseenter", () => setPenMode(grid));
-            grid.addEventListener("mouseenter", () => setEraseMode(grid));
+            grid._handler = () => setRainbowMode(grid);
         }
+
+        grid.addEventListener("mouseenter", grid._handler);
     }
 }
 
@@ -60,10 +80,12 @@ function changeMode() {
 const clear = document.querySelector(".clear");
 const erase = document.querySelector(".eraser");
 const pen = document.querySelector(".pen");
+const rainbow = document.querySelector(".rainbow");
 
 clear.addEventListener("click", () => clearGrid());
 erase.addEventListener("click", () => {currentMode = "erase"; changeMode();});
 pen.addEventListener("click", () => {currentMode = "pen"; changeMode();});
+rainbow.addEventListener("click", () => {currentMode = "rainbow"; changeMode();});
 
 // Create intial grid
 createGrid();
